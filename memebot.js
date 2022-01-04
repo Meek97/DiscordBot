@@ -5,7 +5,7 @@ const { token, guildId, CHANNELS_DB, ADMIN_ROLE_ID, iCalAddress, openweathertoke
 const mongoDriver = require('./MongoDriver.js');
 const logger = require('./logger');
 
-const { Client, Collection, Intents, MessageEmbed, MessageAttachment, SnowflakeUtil } = require('discord.js');
+const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const got = require('got');
 const ical = require('node-ical');
