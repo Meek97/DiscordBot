@@ -8,7 +8,13 @@ module.exports = {
 	async execute(interaction) {
 		// exit if the interaction is NOT a slash command
 		if (interaction.isCommand()) {
-			logger.log(`${interaction.user.tag} in #${interaction.channel.name} triggered the /${interaction.command.name} command.`);
+			if (interaction.channel == null) {
+				logger.log('An interaction was created in a channel that wasn\'t already cached');
+			}
+			if (interaction.command == null) {
+				logger.log('A command has been called that wasn\'t already cached');
+			}
+			logger.log(`${interaction.user.tag} in #${interaction.channel.name} triggered the /${interaction.commandName} command.`);
 			const command = interaction.client.commands.get(interaction.commandName);
 			if (!command) return;
 
