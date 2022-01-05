@@ -28,7 +28,8 @@ async function InitBot() {
 	// Register command and event handlers
 	GetEventHandlers();
 	GetCommandHandlers();
-	GetTime();
+	GMG();
+	//GetTime();
 }
 function GetTime() {
 
@@ -132,7 +133,7 @@ function isEventOccuringToday(event) {
 	}
 }
 async function GetWeather(latitude, longitude) {
-	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}c`;
+	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}`;
 	try {
 		const body = await got(url).json();
 		return body;
