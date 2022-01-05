@@ -28,8 +28,7 @@ async function InitBot() {
 	// Register command and event handlers
 	GetEventHandlers();
 	GetCommandHandlers();
-	GMG();
-	//GetTime();
+	GetTime();
 }
 function GetTime() {
 
