@@ -4,4 +4,3 @@ node_modules/*
 attachments/*
 config.json
 gitArchive.zip
-.vscode/*

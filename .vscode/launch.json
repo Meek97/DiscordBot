@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\BotBoy.js"
+            "program": "${workspaceFolder}\\memebot.js"
         }
     ]
 }
