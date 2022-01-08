@@ -172,7 +172,6 @@ async function GMG() {
 	const Embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('GMG!')
-		.setAuthor(client.user.tag.split('#')[0])
 		.setThumbnail('https://cdn.frankerfacez.com/emoticon/600212/4')
 		.setDescription('Good Morning Gamers')
 		.setFooter('weather provided by OpenWeatherAPI');
@@ -207,9 +206,8 @@ async function EventMessage(eventTitle, eventMessage, eventDate) {
 	const Embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle(eventTitle)
-		.setAuthor(client.user.tag.split('#')[0])
 		.setDescription(eventMessage);
-	mongoDriver.GetOneDocument({ 'date': `${eventDate}` }, 'EventsAttachments')
+	mongoDriver.GetOneDocument({ 'date': `${eventDate}` }, 'event_attachments')
 		.then(
 			function(Attach) {
 				mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(

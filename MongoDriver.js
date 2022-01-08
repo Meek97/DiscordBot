@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 const logger = require('./logger');
 const QUERRY_LOGGING = false;
 module.exports = {
-	db_uri : 'mongodb://10.20.1.2:27017/mydb',
+	db_uri : 'mongodb://127.0.0.1:27017/mydb',
 	db_name : 'discord',
 	mongoClient : null,
 	init: function() {
