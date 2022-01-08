@@ -1,13 +1,12 @@
 const mongoDriver = require('../MongoDriver');
 const logger = require('../logger');
-
+const { guildId, CHANNELS_DB } = require('../config.json');
 module.exports = {
 	name: 'ready',
 	once: true,
 	async execute(client) {
 		logger.log(`Ready! Logged in as ${client.user.tag}`);
-		const querryResults = await mongoDriver.GetOneDocument({ _id:'Guild' }, 'BotConfig');
-		const Guild = await client.guilds.fetch(querryResults.GuildID);
+		const Guild = await client.guilds.fetch(guildId);
 		const Channels = Guild.channels;
 		Channels.fetch()
 			.then(function(channels) {
@@ -26,13 +25,13 @@ module.exports = {
 							'isGMG' : false,
 						};
 						// Check if a document already exists in the DB under the same id
-						mongoDriver.GetOneDocument({ _id : dbObject._id }, 'Channels').then(
+						mongoDriver.GetOneDocument({ _id : dbObject._id }, CHANNELS_DB).then(
 							function(results) {
 								// If no results were returned
 								if (results == null) {
 									logger.log(`${channel.name} | ${channel.id} does not yet exists in ChannelsDB. Adding entry now`);
 									// Add default channel object to the DB
-									mongoDriver.AddDocument(dbObject, 'Channels');
+									mongoDriver.AddDocument(dbObject, CHANNELS_DB);
 								}
 								// If a result was found
 								else {
@@ -44,7 +43,7 @@ module.exports = {
 											mongoDriver.UpdateOneDocument(
 												{ _id : dbObject._id },
 												{ $set: { [property] : dbObject[property] } },
-												'Channels');
+												CHANNELS_DB);
 										}
 										// TODO : remove properties from document that aren't present in the default object?
 									}

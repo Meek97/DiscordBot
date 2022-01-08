@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
+const { SUBMISSIONS_DB } = require('../config.json');
 const mongoDriver = require('../MongoDriver');
 
 const REVEAL_KEYS_LENGTH = 20;
@@ -29,7 +30,7 @@ module.exports = {
 		if (keyPage) {
 			startingIndex = (REVEAL_KEYS_LENGTH * keyPage) - REVEAL_KEYS_LENGTH;
 		}
-		const results = await mongoDriver.GetAllDocumentsSorted('MemeSubmissions', { key:1 });
+		const results = await mongoDriver.GetAllDocumentsSorted(SUBMISSIONS_DB, { key:1 });
 		let messageBody = '';
 		let messageTitle = '';
 		if (keyPage == -1) {
@@ -46,8 +47,8 @@ module.exports = {
 			for (let i = startingIndex; i < (startingIndex + REVEAL_KEYS_LENGTH);i++) {
 				if (i >= results.length) break;
 				messageBody += '* `' + results[i].key + '`';
-				if (results[i].args.length > 1) {
-					messageBody += ' [' + results[i].args.length + ']';
+				if (results[i].submissions.length > 1) {
+					messageBody += ' [' + results[i].submissions.length + ']';
 				}
 				messageBody += '\n';
 			}
@@ -67,7 +68,7 @@ module.exports = {
 	},
 	async next(interaction, index, modifier) {
 		let keyPage = index + modifier;
-		const results = await mongoDriver.GetAllDocumentsSorted('MemeSubmissions', { key:1 });
+		const results = await mongoDriver.GetAllDocumentsSorted(SUBMISSIONS_DB, { key:1 });
 		const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
@@ -90,8 +91,8 @@ module.exports = {
 		if (keyPage == -1) {
 			for (let i = 0; i < results.length;i++) {
 				messageBody += '* `' + results[i].key + '`';
-				if (results[i].args.length > 1) {
-					messageBody += ' [' + results[i].args.length + ']';
+				if (results[i].submissions.length > 1) {
+					messageBody += ' [' + results[i].submissions.length + ']';
 				}
 				messageBody += '\n';
 			}
@@ -101,8 +102,8 @@ module.exports = {
 			for (let i = startingIndex; i < (startingIndex + REVEAL_KEYS_LENGTH);i++) {
 				if (i >= results.length) break;
 				messageBody += '* `' + results[i].key + '`';
-				if (results[i].args.length > 1) {
-					messageBody += ' [' + results[i].args.length + ']';
+				if (results[i].submissions.length > 1) {
+					messageBody += ' [' + results[i].submissions.length + ']';
 				}
 				messageBody += '\n';
 			}

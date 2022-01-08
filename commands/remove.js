@@ -37,13 +37,13 @@ module.exports = {
 			await interaction.reply({ contents:`Did not find any response entries under \`${temp}\``, ephemeral:true });
 		}
 		else {
-			const numResults = results.args.length;
+			const numResults = results.submissions.length;
 			if (numResults == 1) {
 				row.components[0].setDisabled(true);
 				row.components[1].setDisabled(true);
 			}
 			const messageHeader = `\`${temp}\`|1|${numResults}\n`;
-			await interaction.reply({ content: messageHeader + results.args[0], components: [row], ephemeral:true });
+			await interaction.reply({ content: messageHeader + results.submissions[0].response, components: [row], ephemeral:true });
 			row.components[2].setLabel('Delete ALL');
 			row.components[2].setDisabled(false);
 			await wait(3000);
@@ -56,12 +56,12 @@ module.exports = {
 			await interaction.update({ content: `Did not find any response entries under \`${_key}\``, components: [] });
 		}
 		else {
-			const numResults = results.args.length;
+			const numResults = results.submissions.length;
 			if ((index + modifier) > numResults) index = 1;
 			else if ((index + modifier) < 1) index = numResults;
 			else index = index + modifier;
 			const messageHeader = `\`${_key}\`|${index}|${numResults}\n`;
-			await interaction.update({ content: messageHeader + results.args[index - 1] });
+			await interaction.update({ content: messageHeader + results.submissions[index - 1].response });
 		}
 	},
 	async delete(interaction, _key) {

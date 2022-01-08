@@ -2,8 +2,8 @@ const { MongoClient } = require('mongodb');
 const logger = require('./logger');
 const QUERRY_LOGGING = false;
 module.exports = {
-	db_uri : 'mongodb://localhost:27017/mydb',
-	db_name : 'discordbotDB',
+	db_uri : 'mongodb://10.20.1.2:27017/mydb',
+	db_name : 'discord',
 	mongoClient : null,
 	init: function() {
 		if (!this.mongoClient) {
@@ -34,14 +34,16 @@ module.exports = {
 	},
 	AddDocument: async function(newObject, collection) {
 		const DBcollection = this.mongoClient.db(this.db_name).collection(collection);
+		let result;
 		if (newObject._id == null) {
-			const result = await DBcollection.insertOne(newObject);
+			result = await DBcollection.insertOne(newObject);
 			logger.log('Added new document into database with ID: ' + result.insertedId);
 		}
 		else {
-			const result = await DBcollection.insertOne(newObject);
+			result = await DBcollection.insertOne(newObject);
 			logger.log('Added new document into database with ID: ' + result.insertedId);
 		}
+		return result;
 	},
 	GetAllDocuments: async function(collection) {
 		const DBcollection = this.mongoClient.db(this.db_name).collection(collection);

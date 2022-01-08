@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const mongoDriver = require('../MongoDriver');
 const logger = require('../logger');
+const { CHANNELS_DB } = require('../config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -77,7 +78,7 @@ module.exports = {
 async function channel_status(interaction, channelName) {
 	let message = `Status as of: \`${interaction.createdAt}\`\n\`\`\`Responses | Submissions | Paused | GMG\tChannel Name\n\n`;
 	if (channelName == null) {
-		const results = await mongoDriver.GetAllDocumentsSorted('Channels', { 'name': 1 });
+		const results = await mongoDriver.GetAllDocumentsSorted(CHANNELS_DB, { 'name': 1 });
 		if (results != null) {
 			for (let i = 0; i < results.length; i++) {
 				message += constructStatusLine(results[i]);
@@ -85,7 +86,7 @@ async function channel_status(interaction, channelName) {
 		}
 	}
 	else {
-		const results = await mongoDriver.GetOneDocument({ 'name':channelName }, 'Channels');
+		const results = await mongoDriver.GetOneDocument({ 'name':channelName }, CHANNELS_DB);
 		if (results != null) {
 			message += constructStatusLine(results);
 		}
@@ -130,9 +131,9 @@ function constructStatusLine(channelInfo) {
 // Set_Responses subCommand Functions
 async function channel_responses(interaction, channelName, set_enabled) {
 	let message = '';
-	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, 'Channels');
+	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, CHANNELS_DB);
 	if (results != null) {
-		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isResponseChannel' : set_enabled } }, 'Channels');
+		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isResponseChannel' : set_enabled } }, CHANNELS_DB);
 		if (set_enabled) {
 			message = `Responses enabled on #${results.name}`;
 			logger.log(`${interaction.user.tag} has enabled responses on #${channelName}`);
@@ -151,9 +152,9 @@ async function channel_responses(interaction, channelName, set_enabled) {
 // Set_Submissions subCommand Functions
 async function channel_submissions(interaction, channelName, set_enabled) {
 	let message = '';
-	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, 'Channels');
+	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, CHANNELS_DB);
 	if (results != null) {
-		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isSubmissionChannel' : set_enabled } }, 'Channels');
+		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isSubmissionChannel' : set_enabled } }, CHANNELS_DB);
 		if (set_enabled) {
 			message = `Submissions enabled on #${results.name}`;
 			logger.log(`${interaction.user.tag} has enabled submissions on #${channelName}`);
@@ -171,9 +172,9 @@ async function channel_submissions(interaction, channelName, set_enabled) {
 
 async function channel_paused(interaction, channelName, set_enabled) {
 	let message = '';
-	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, 'Channels');
+	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, CHANNELS_DB);
 	if (results != null) {
-		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isPaused' : set_enabled } }, 'Channels');
+		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isPaused' : set_enabled } }, CHANNELS_DB);
 		if (set_enabled) {
 			message = `Responses and Submissions paused on #${results.name}`;
 			logger.log(`${interaction.user.tag} has paused #${channelName}`);
@@ -191,9 +192,9 @@ async function channel_paused(interaction, channelName, set_enabled) {
 
 async function channel_gmg(interaction, channelName, set_enabled) {
 	let message = '';
-	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, 'Channels');
+	const results = await mongoDriver.GetOneDocument({ 'name':channelName }, CHANNELS_DB);
 	if (results != null) {
-		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isGMG' : set_enabled } }, 'Channels');
+		mongoDriver.UpdateOneDocument({ '_id' : results._id }, { $set: { 'isGMG' : set_enabled } }, CHANNELS_DB);
 		if (set_enabled) {
 			message = `GMG enabled on #${results.name}`;
 			logger.log(`${interaction.user.tag} has enabled GMG on #${channelName}`);
