@@ -234,36 +234,6 @@ function GetCommandHandlers() {
 		// With the key as the command name and the value as the exported module
 		client.commands.set(command.data.name, command);
 	}
-	UpdateCommandPerms();
-}
-async function UpdateCommandPerms() {
-	if (!client.application?.owner) await client.application?.fetch();
-	// Get the guild object reference
-	const guild = await client.guilds.cache.get(guildId);
-	// Get a collection of all of the bot commands from the guild
-	const allCommands = await guild.commands.fetch();
-	// Iterate through all commands
-	allCommands.forEach(
-		function(_data, key) {
-			/*
-			If the defaultPermission property is set to false. If no 'defaultPermission' property was defined
-			when the command was created, this property will be 'undefined', but will be accessible with default permissions
-			*/
-			if (_data.defaultPermission == false) {
-				// Define our admin role level permission
-				// anyone with the defined 'admin role' (in config.json) will have permission to use these commands
-				const perm = [
-					{
-						id: ADMIN_ROLE_ID,
-						type: 'ROLE',
-						permission: true,
-					},
-				];
-				logger.log(`Settings perms for ${_data.name}`);
-				// save command permissions
-				client.application.commands.permissions.set({ guild: guildId, command: key, permissions: perm });
-			}
-		});
 }
 function GetEventHandlers() {
 	const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));

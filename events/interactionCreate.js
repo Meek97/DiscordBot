@@ -2,6 +2,7 @@ const edit = require('../commands/edit');
 const remove = require('../commands/remove');
 const reveal = require('../commands/revealkeys');
 const logger = require('../logger');
+const { ADMIN_ROLE_ID } = require('../config.json');
 module.exports = {
 	name: 'interactionCreate',
 	once: false,
@@ -19,7 +20,13 @@ module.exports = {
 			if (!command) return;
 
 			try {
-				await command.execute(interaction);
+				if(command.data.defaultPermission == false && interaction.member._roles.includes(ADMIN_ROLE_ID) || command.data.defaultPermission == undefined || command.data.defaultPermission == true) {
+					logger.log('user has permissions for this command');
+					await command.execute(interaction);
+				}
+				else{
+					await interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true })
+				}
 			}
 			catch (err) {
 				console.error(err);
