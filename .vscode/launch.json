@@ -5,13 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "name": "Get Bearer Token",
+            "program": "${workspaceFolder}/rest.js",
             "request": "launch",
-            "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\memebot.js"
-        }
+            "type": "node"
+        },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Program",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "program": "${workspaceFolder}\\memebot.js"
+    },
+    {
+        "name": "Deploy Commands",
+        "program": "${workspaceFolder}/deploy-commands.js",
+        "request": "launch",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "node"
+    }
     ]
 }

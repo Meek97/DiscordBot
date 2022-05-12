@@ -9,5 +9,15 @@
     "mongod": "^2.0.0",
     "mongodb": "^4.2.0",
     "node-ical": "^0.14.1"
-  }
+  },
+  "name": "discordbot",
+  "version": "1.0.0",
+  "description": "a silly little discord bot",
+  "main": "memebot.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
