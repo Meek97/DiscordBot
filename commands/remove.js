@@ -34,7 +34,7 @@ module.exports = {
 			);
 		const results = await mongoDriver.GetOneDocument({ key : temp }, SUBMISSIONS_DB);
 		if (results == null) {
-			await interaction.reply({ contents:`Did not find any response entries under \`${temp}\``, ephemeral:true });
+			await interaction.reply({ content:`Did not find any response entries under \`${temp}\``, ephemeral:true });
 		}
 		else {
 			const numResults = results.submissions.length;
