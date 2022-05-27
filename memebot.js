@@ -10,7 +10,9 @@ const fs = require('fs');
 const got = require('got');
 const ical = require('node-ical');
 // GLOBAL OBJECTS
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ 
+	restRequestTimeout : 30000,
+	intents : [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 let gmgTitle = '';
 let gmgMessages = '';
 
