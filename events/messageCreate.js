@@ -15,7 +15,10 @@ module.exports = {
 		if (!_channel) return;
 		// exit if the channel is currently paused
 		if (_channel.isPaused) return;
-		// If the channel is an allowed submissions
+
+		const guild = await message.guild.fetch();
+		const emojis = await guild.emojis.fetch();
+
 		const keyWords = message.content.toUpperCase().split(' ');
 		if (keyWords[0] == '!SUBMIT') {
 			if (_channel.isSubmissionChannel) {
@@ -45,19 +48,26 @@ module.exports = {
 				if (keyWords[i].startsWith('!')) break;
 				// if the maximum response limit has been reached, exit
 				if (responseCount >= MAX_RESPONSE_LIMIT) break;
-				// Check the db for a document with the key word
+				// increment response count
 				responseCount++;
+				// Check the db for a document with the key word
 				mongoDriver.GetOneDocument({ key:keyWords[i] }, SUBMISSIONS_DB).then(
 					function(results) {
 						// If no results were returned, exit
 						if (results == null) return;
-						// increment response count
-						// initialize index to 0. documents with only 1 response will be at args[0]
+						
 						let index = 0;
-						// If there is more than one entry for this key, pick one at random, and change index
-						if (results.submissions.length > 1) index = Math.floor(Math.random() * results.submissions.length);
-						logger.log(`Response found for ${keyWords[i]}`);
-						message.channel.send(results.submissions[index].response);
+						if(results.react==true){
+							if(results.reactions.length>1) index = Math.floor(Math.random()*results.reactions.length);
+							message.react(`${results.reactions[index].emoji}`);
+						}
+						// reset index to 0. documents with only 1 response will be at args[0]
+						if(results.submissions){
+							// If there is more than one entry for this key, pick one at random, and change index
+							if (results.submissions.length > 1) index = Math.floor(Math.random() * results.submissions.length);
+							logger.log(`Response found for ${keyWords[i]}`);
+							message.channel.send(results.submissions[index].response);
+						}
 					});
 			}
 		}
