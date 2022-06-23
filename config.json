@@ -1,0 +1,12 @@
+{
+	"token": "your Discord Bots Token found in your Discord Developr Portable",
+	"clientId":"your Discord Bots Client ID found in your Discord Develor Portable",
+	"guildId":"The ID Number of the Guild you want to deploy the bot in. Can be found by enabling Developer Mode in Discord",
+	"DB_URI" : "The URL to the MongoDB Database for the bot",
+	"DB_NAME" : "The name of the Databse",
+	"CHANNELS_DB": "The name of the MongoDB Collection to stoer channel informaiton",
+	"SUBMISSIONS_DB": "The name of the MongoDB Collection to store response information",
+	"ADMIN_ROLE_ID": "The ID number for the discord role you want to mark as admin. Used to restrict the use of some slash commands",
+	"iCalAddress": "URL of the iCal address you want the bot to read from",
+	"openweathertoken": "OpenWeatherAPI Token to get weather reports"
+}
