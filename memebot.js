@@ -4,11 +4,16 @@
 const { token, guildId, CHANNELS_DB, ADMIN_ROLE_ID, iCalAddress, openweathertoken } = require('./config.json');
 const mongoDriver = require('./MongoDriver.js');
 const logger = require('./logger');
+const weather = require('./weather');
 
 const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const got = require('got');
 const ical = require('node-ical');
+const readline = require('readline').createInterface({
+	input: process.stdin,
+	output: process.stdout,
+  });
 // GLOBAL OBJECTS
 const client = new Client({ 
 	restRequestTimeout : 30000,
@@ -26,7 +31,6 @@ async function InitBot() {
 	// client login
 	logger.log('logging bot client in');
 	// Wait for client to sucessfully log in
-	await client.login(token);
 	// Register command and event handlers
 	GetEventHandlers();
 	GetCommandHandlers();
@@ -250,3 +254,23 @@ function GetEventHandlers() {
 		}
 	}
 }
+
+readline.on('line', async (input) => {
+	console.log(`Received: ${input}`);
+	if(input == 'weather'){
+		await weather.GetForecastCanvas();
+			
+			mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
+			function(gmgChannels) {
+				for (let i = 0; i < gmgChannels.length; i++) {
+					// Check that the channel is not paused
+					if (!gmgChannels[i].isPaused) {
+						client.channels.fetch(gmgChannels[i]._id)
+							.then(channel => channel.send({files: ['Forecast.png']}))
+							.catch(console.error);
+					}
+				}
+			});
+			
+	}
+  });
