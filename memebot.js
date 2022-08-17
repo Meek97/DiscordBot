@@ -29,12 +29,13 @@ async function InitBot() {
 	mongoDriver.init();
 	await mongoDriver.ConnectDB();
 	// client login
-	logger.log('logging bot client in');
 	// Wait for client to sucessfully log in
 	// Register command and event handlers
 	GetEventHandlers();
 	GetCommandHandlers();
 	GetTime();
+	logger.log('logging bot client in');
+	await client.login(token);
 }
 function GetTime() {
 
