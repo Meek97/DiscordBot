@@ -1,4 +1,5 @@
 const {openweathertoken} = require('./config.json');
+const logger = require('./logger');
 const {createCanvas, loadImage} = require('canvas');
 const got = require('got');
 const fs = require('fs');
@@ -153,48 +154,6 @@ const MonthLookup = {
 	11: 'Dec'
 };
 
-exports.GetReport = async (latitude, longitude) => {
-	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}`;
-	const time_since_last_report = Date.now() - last_report_time;
-	const last_report_date = new Date(last_report_time);
-	if(time_since_last_report > 10800000){
-		console.log(`last report was more than 3 hours ago (${last_report_date.toDateString()} | ${last_report_date.getHours()}:${last_report_date.getMinutes()}).. requesting new report...`);
-		last_report_time = Date.now();
-		try {
-			report = await got(url).json();
-			console.log('new weather report generated');
-		}
-		catch (error) {
-			console.error(error);
-			return null;
-		}
-	}
-	else{
-		console.log(`report was pulled in the last 3 hours (${last_report_date.toDateString()} | ${last_report_date.getHours()}:${last_report_date.getMinutes()})`);
-	}
-	return report;
-};
-
-exports.GetForecastCanvas = async () => {
-	await this.GetReport('40.86', '-81.40');
-
-	// Backgorund Color
-	ctx.fillStyle= '#4ea2a8';
-	// ctx.fillRect(0,0,450,400);
-	
-	// Background Ground
-	ctx.fillStyle = '#1c6f3a';
-	// ctx.fillRect(0,375,450,25);
-
-	
-
-	await drawKey();
-	//await drawClouds();
-
-
-	fs.writeFileSync('Forecast.png',myCanvas.toBuffer('image/png', { compressionLevel: 0, filters: myCanvas.PNG_FILTER_NONE }));
-};
-
 async function drawKey() {
 
 	const last_report_date = new Date(last_report_time);
@@ -295,7 +254,6 @@ async function loadIcon(_id,_x,_y,_sizeX,_sizeY){
 			ctx.drawImage(img,_x,_y,_sizeX,_sizeY);
 		});
 }
-
 function WordWrap(msg, max_line_length) {
 	let new_msg = '';
 	let temp_msg = '';
@@ -324,3 +282,46 @@ function WordWrap(msg, max_line_length) {
 	new_msg += temp_msg;
 	return new_msg;
 }
+
+exports.GetReport = async (latitude, longitude) => {
+	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}`;
+	const time_since_last_report = Date.now() - last_report_time;
+	const last_report_date = new Date(last_report_time);
+	if(time_since_last_report > 10800000){
+		logger.log(`last report was more than 3 hours ago (${last_report_date.toDateString()} | ${last_report_date.getHours()}:${last_report_date.getMinutes()}).. requesting new report...`);
+		last_report_time = Date.now();
+		try {
+			report = await got(url).json();
+			logger.log('new weather report generated');
+		}
+		catch (error) {
+			console.error(error);
+			return null;
+		}
+	}
+	else{
+		logger.log(`report was pulled in the last 3 hours (${last_report_date.toDateString()} | ${last_report_date.getHours()}:${last_report_date.getMinutes()})`);
+	}
+	return report;
+};
+exports.GetForecastCanvas = async () => {
+	//TODO: add weather location to config file
+	await this.GetReport('40.86', '-81.40');
+
+	// Backgorund Color
+	ctx.fillStyle= '#4ea2a8';
+	// ctx.fillRect(0,0,450,400);
+	
+	// Background Ground
+	ctx.fillStyle = '#1c6f3a';
+	// ctx.fillRect(0,375,450,25);
+
+	
+
+	await drawKey();
+	//await drawClouds();
+
+
+	fs.writeFileSync('Forecast.png',myCanvas.toBuffer('image/png', { compressionLevel: 0, filters: myCanvas.PNG_FILTER_NONE }));
+};
+

@@ -5,7 +5,6 @@ const { token, guildId, CHANNELS_DB, ADMIN_ROLE_ID, iCalAddress, openweathertoke
 const mongoDriver = require('./MongoDriver.js');
 const logger = require('./logger');
 const weather = require('./weather');
-
 const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const got = require('got');
@@ -19,7 +18,6 @@ const client = new Client({
 	restRequestTimeout : 30000,
 	intents : [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 let gmgTitle = '';
-let gmgMessages = '';
 
 // Script starting execution
 InitBot();
@@ -31,7 +29,8 @@ async function InitBot() {
 	// client login
 	// Wait for client to sucessfully log in
 	// Register command and event handlers
-	GetEventHandlers();
+	GetDiscordClientEventHandlers();
+	GetOtherEventHandlers();
 	GetCommandHandlers();
 	GetTime();
 	logger.log('logging bot client in');
@@ -108,7 +107,7 @@ function GetTime() {
 	if (GMGTotal > 0) {
 		logger.log('Good Morning Gamers in  ' + GMGTotal + ' miliseconds | ' + TimeOutLog(GMGTotal, Date.parse(today)));
 		// setTimeout to call GMG function after total miliseconds
-		setTimeout(GMG, GMGTotal);
+		setTimeout(SendGoodMorning, GMGTotal);
 	}
 	else {
 		logger.log('already passed gmg time for today. Will try again tomorrow');
@@ -138,6 +137,7 @@ function isEventOccuringToday(event) {
 		return true;
 	}
 }
+/*Old Get Weather Function
 async function GetWeather(latitude, longitude) {
 	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}`;
 	try {
@@ -149,33 +149,11 @@ async function GetWeather(latitude, longitude) {
 	}
 	return null;
 }
+*/
+/*Old GMG Function
 async function GMG() {
 	logger.log('GMG Time!');
 	const weatherResults = await GetWeather('40.86', '-81.40');
-	/*
-		weatherResults
-			.current
-				.temp
-				.humidity -% of humidity
-				.wind_speed
-				.clouds	-% of cloud coverage
-				.rain
-				.snow
-				.weather.description
-			.daily
-				.temp.max
-				.temp.min
-				.humidity -% of humidity
-				.wind_speed
-				.clouds -% of cloud coverage
-				.pop	-probability of precipitation
-				.weather.description
-			.alters
-				.event
-				.start
-				.end
-				.description
-	*/
 	const Embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle('GMG!')
@@ -209,6 +187,7 @@ async function GMG() {
 			}
 		});
 }
+*/
 async function EventMessage(eventTitle, eventMessage, eventDate) {
 	const Embed = new MessageEmbed()
 		.setColor('#0099ff')
@@ -242,11 +221,11 @@ function GetCommandHandlers() {
 		client.commands.set(command.data.name, command);
 	}
 }
-function GetEventHandlers() {
-	const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+function GetDiscordClientEventHandlers() {
+	const eventFiles = fs.readdirSync('./client_events').filter(file => file.endsWith('.js'));
 	for (const file of eventFiles) {
-		const event = require(`./events/${file}`);
-		logger.log(`event handler found for ${event.name}`);
+		const event = require(`./client_events/${file}`);
+		logger.log(`discord client event handler found for ${event.name}`);
 		if (event.once) {
 			client.once(event.name, (...args) => event.execute(...args));
 		}
@@ -255,23 +234,53 @@ function GetEventHandlers() {
 		}
 	}
 }
-
-readline.on('line', async (input) => {
-	console.log(`Received: ${input}`);
-	if(input == 'weather'){
-		await weather.GetForecastCanvas();
-			
-			mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
-			function(gmgChannels) {
-				for (let i = 0; i < gmgChannels.length; i++) {
-					// Check that the channel is not paused
-					if (!gmgChannels[i].isPaused) {
-						client.channels.fetch(gmgChannels[i]._id)
-							.then(channel => channel.send({files: ['Forecast.png']}))
-							.catch(console.error);
-					}
-				}
-			});
-			
+function GetOtherEventHandlers() {
+	// Readline Events
+	const eventFiles = fs.readdirSync('./readline_events').filter(file => file.endsWith('.js'));
+	for (const file of eventFiles) {
+		const event = require(`./readline_events/${file}`);
+		logger.log(`readline event handler found for ${event.name}`);
+		if (event.once) {
+			readline.once(event.name, (...args) => event.execute(...args));
+		}
+		else {
+			readline.on(event.name, (...args) => event.execute(...args));
+		}
 	}
-  });
+}
+
+exports.SendMessage = async(payload) => {
+	// console.log(messageOptions);
+	payload.target.send(payload);
+};
+exports.GetChannel = async(channelID) => {
+	return await client.channels.fetch(channelID);
+};
+exports.SendWeatherReport = async() => {
+};
+exports.SendGoodMorning = async() => {
+	await weather.GetForecastCanvas();
+	// Create embed message object
+	const embed = new MessageEmbed({
+		color:'#0099ff',
+		title:'Good Morning Gamers!',
+		thumbnail:{url:'https://cdn.frankerfacez.com/emoticon/600212/4'},
+		image:{url:'attachment://Forecast.png'},
+		footer:{text:'weather provided by OpenWeatherAPI'}
+	})
+	mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
+		function(gmgChannels) {
+			for (let i = 0; i < gmgChannels.length; i++) {
+				// Check that the channel is not paused
+				if (!gmgChannels[i].isPaused) {
+					client.channels.fetch(gmgChannels[i]._id)
+						.then(channel => channel.send({	// Message Options
+							embeds: [embed],
+							// content : "",
+							files : ['Forecast.png']
+						}))
+						.catch(console.error);
+				}
+			}
+		});
+};
