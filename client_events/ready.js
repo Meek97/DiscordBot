@@ -5,8 +5,17 @@ module.exports = {
 	name: 'ready',
 	once: true,
 	async execute(client) {
-		logger.log(`Ready! Logged in as ${client.user.tag}`);
-		const Guild = await client.guilds.fetch(guildId);
+		let Guild;
+		try {
+			Guild = await client.guilds.fetch(guildId);
+		} catch (error) {
+			if(error.code == 50001) { // Missing Access Error. Bot does not have access to the given guild ID
+				logger.log(`${error.name} | ${error.message} error. Bot does not have access to guildID: ${guildId}`);
+				return error;
+			}
+			
+		}
+		
 		const Channels = Guild.channels;
 		Channels.fetch()
 			.then(function(channels) {
@@ -52,5 +61,7 @@ module.exports = {
 					}
 				});
 			});
+
+		logger.log(`Ready! Logged in as ${client.user.tag}`);
 	},
 };
