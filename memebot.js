@@ -127,13 +127,16 @@ function TimeOutLog(_milisecondsUntil, _miliseconds) {
 	return hours + ':' + minutes + ':' + seconds + ' | ' + (endTime.getMonth() + 1) + '/' + endTime.getDate() + '  ' + endTime.getHours() + ':' + endTime.getMinutes() + ':' + endTime.getSeconds();
 }
 function isEventOccuringToday(event) {
-	const today = new Date();
+	const today = Date.parse(new Date());
+	const eventStart = Date.parse(event.start);
+	const eventEnd = Date.parse(event.end);
+
 	// if the event start time is after now
-	if (Date.parse(event.start) - Date.parse(today) > 0) {
+	if (eventStart - today > 0) {
 		return false;
 	}
 	// if the event start time is before now, and end time is after now
-	else if (Date.parse(event.start) - Date.parse(today) <= 0 && Date.parse(event.end) - Date.parse(today) >= 0) {
+	else if (eventStart - today <= 0 && eventEnd - today >= 0) {
 		return true;
 	}
 }
