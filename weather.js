@@ -10,6 +10,7 @@ const ctx = myCanvas.getContext('2d');
 let report = require('./report.json');
 let last_report_time = new Date(0);
 
+// Table of weather status condition descriptions based on weather report ID
 const WeatherCodes = {
 	// Thunderstorms
 	200 :	`thunderstorm with light rain`,
@@ -75,6 +76,7 @@ const WeatherCodes = {
 	804	:	`overcast clouds`
 
 };
+// Table of weather status condition icons based on weather report ID
 const WeatherIcons = {
 	// Thunderstorms
 	200	:	`11`,
@@ -139,6 +141,7 @@ const WeatherIcons = {
 	803	:	`04`,
 	804	:	`04`
 };
+// Quick table for converting Date.getMonth() into 3-character month strings
 const MonthLookup = {
 	0 : 'Jan',
 	1 : 'Feb',
@@ -157,14 +160,19 @@ const MonthLookup = {
 async function drawKey() {
 
 	const last_report_date = new Date(last_report_time);
-
+	/*
+		This is all nodeJS canvas black magic. I spent a few days fiddling with arcs
+		and element placements. It just works.
+	*/
+	// using constant 'origin' variables for X and Y values makes it easy to move all the elements in a canvas
 	const originX = 1;
 	const originY = 1;
+	// These variables define the color scheme for the various text elemetns
 	const lightTextColor = '#dddfeb';
 	const darkTextColor = '#5a585c';
 	const altTextColor = '#8db1b8';
-	// Available Region from 150,50 - 400,350
 	ctx.beginPath();
+	// These 4 arcTo() commands create the rounded-rectangle shape used for the background
 	ctx.moveTo(originX,originY+12);
 	ctx.arcTo(
 		originX,originY+324,
@@ -182,6 +190,7 @@ async function drawKey() {
 		originX,originY,
 		originX,originY+12,
 		12);
+	// These linearGradient commands define the backgorund fill style for the rounded-rectangle
 	const lingrad = ctx.createLinearGradient(132,0,132,326);
 	lingrad.addColorStop(0.1,'#191024');
 	lingrad.addColorStop(0.8,'#4c3569');
@@ -189,17 +198,17 @@ async function drawKey() {
 	ctx.fillStyle = lingrad;
 	ctx.fill();
 
-	ctx.fillStyle= darkTextColor;
+	// Header Text
+	ctx.fillStyle = lightTextColor;
+	ctx.font = '24px Sans';
+	ctx.fillText('Today\'s Forecast', originX+10, originY+32);
 	// Header Line
 	ctx.beginPath();
 	ctx.moveTo(originX,originY+42);
 	ctx.lineTo(originX+262,originY+42);
 	ctx.stroke();
-
-	// console.log(report.daily[0].weather[0].id);
-	await loadIcon(WeatherIcons[report.daily[0].weather[0].id],originX+130,originY+20,125,125);
-
-	// Weather Icon Line
+	
+	// Line seperating weather icon and description from the weather stats
 	ctx.beginPath();
 	ctx.moveTo(originX+130,originY+42);
 	ctx.lineTo(originX+130,originY+177);
@@ -207,17 +216,18 @@ async function drawKey() {
 	ctx.lineTo(originX+262,originY+189);
 	ctx.stroke();
 
-	ctx.font = '24px Sans';
-	ctx.fillStyle = lightTextColor;
-	ctx.fillText('Today\'s Forecast', originX+10, originY+32);
-	
-	ctx.font = '20px Sans';
+	// Load the weather icon
+	await loadIcon(WeatherIcons[report.daily[0].weather[0].id],originX+130,originY+20,125,125);
+	// Weather description
 	ctx.fillStyle = altTextColor;
+	ctx.font = '20px Sans';
 	ctx.fillText(
 		`${MonthLookup[last_report_date.getMonth()]} ${last_report_date.getDate()} ${last_report_date.getFullYear()}\n@  ${last_report_date.getHours().toString().padStart(2,"0")}:${last_report_date.getMinutes().toString().padStart(2,"0")}`,
 		originX+15,originY+72);
-	ctx.font = '18px Sans';
+	
+	// Weather Stat Headings
 	ctx.fillStyle = darkTextColor;
+	ctx.font = '18px Sans';
 	// Current Temp
 	ctx.fillText(`Current Temp`, originX+15,originY+132);	
 	// Hi Lo Temperature
@@ -231,6 +241,7 @@ async function drawKey() {
 	// Clouds
 	ctx.fillText(`Cloud Cover`, originX+140, originY+282);
 
+	// Weather Stats
 	ctx.fillStyle= lightTextColor;
 	// Weather Description
 	ctx.fillText(WordWrap(WeatherCodes[report.daily[0].weather[0].id],12),originX+140,originY+132);
