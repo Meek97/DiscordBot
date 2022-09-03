@@ -1,8 +1,11 @@
 // https://discord.js.org/#/docs/main/stable/general/welcome
 
 // IMPORTS
-const { token, guildId, CHANNELS_DB, ADMIN_ROLE_ID, iCalAddress, openweathertoken } = require('./config.json');
+const { token, guildId, CHANNELS_DB, ADMIN_ROLE_ID, iCalAddress, openweathertoken, DB_URI,DB_NAME } = require('./config.json');
+
 const mongoDriver = require('./MongoDriver.js');
+const mongooseDriver = require('./mongooseDriver');
+
 const logger = require('./logger');
 const weather = require('./weather');
 const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
@@ -26,6 +29,7 @@ async function InitBot() {
 	logger.log('Bot script is starting... ');
 	mongoDriver.init();
 	await mongoDriver.ConnectDB();
+	await mongooseDriver.Init();
 	// client login
 	// Wait for client to sucessfully log in
 	// Register command and event handlers
@@ -140,57 +144,6 @@ function isEventOccuringToday(event) {
 		return true;
 	}
 }
-/*Old Get Weather Function
-async function GetWeather(latitude, longitude) {
-	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}`;
-	try {
-		const body = await got(url).json();
-		return body;
-	}
-	catch (error) {
-		console.error(error);
-	}
-	return null;
-}
-*/
-/*Old GMG Function
-async function GMG() {
-	logger.log('GMG Time!');
-	const weatherResults = await GetWeather('40.86', '-81.40');
-	const Embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle('GMG!')
-		.setThumbnail('https://cdn.frankerfacez.com/emoticon/600212/4')
-		.setDescription('Good Morning Gamers')
-		.setFooter('weather provided by OpenWeatherAPI');
-	if (gmgMessages != '') {
-		Embed.addFields({ name: gmgTitle, value: gmgMessages });
-	}
-	Embed.addFields(
-		{ name: '\u200B', value: '\u200B' },
-		{ name: 'Current Weather', value: `${weatherResults.current.weather[0].description}` },
-		{ name: 'Temp', value: `${Math.round(weatherResults.current.temp)}\xB0F`, inline: true },
-		{ name: 'Hi / Lo', value: `${Math.round(weatherResults.daily[0].temp.max)}\xB0F / ${Math.round(weatherResults.daily[0].temp.min)}\xB0F`, inline: true },
-		{ name: 'Precipitation', value: `${(weatherResults.daily[0].pop * 100)}%`, inline: true },
-	);
-	Embed.addFields(
-		{ name: 'Humidity', value: `${Math.round(weatherResults.daily[0].humidity)}%`, inline: true },
-		{ name: '\u200B', value: '\u200B', inline: true },
-		{ name: 'Wind', value: `${weatherResults.daily[0].wind_speed} MPH`, inline: true },
-	);
-	mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
-		function(gmgChannels) {
-			for (let i = 0; i < gmgChannels.length; i++) {
-				// Check that the channel is not paused
-				if (!gmgChannels[i].isPaused) {
-					client.channels.fetch(gmgChannels[i]._id)
-						.then(channel => channel.send({ embeds: [Embed] }))
-						.catch(console.error);
-				}
-			}
-		});
-}
-*/
 async function EventMessage(eventTitle, eventMessage, eventDate) {
 	const Embed = new MessageEmbed()
 		.setColor('#0099ff')
@@ -252,14 +205,17 @@ function GetOtherEventHandlers() {
 	}
 }
 
+/**
+ * 
+ * @param {MessagePaylod} payload a MessaagePayload object for the bot to send
+ * @MessagePayload contains two parts 1: a MessageTarget (typically a TextBasedChannel Object) and 2: a MessaageOptions object
+ */
 exports.SendMessage = async(payload) => {
 	// console.log(messageOptions);
 	payload.target.send(payload);
 };
 exports.GetChannel = async(channelID) => {
 	return await client.channels.fetch(channelID);
-};
-exports.SendWeatherReport = async() => {
 };
 exports.SendGoodMorning = async() => {
 	await weather.GetForecastCanvas();
@@ -271,7 +227,7 @@ exports.SendGoodMorning = async() => {
 		image:{url:'attachment://Forecast.png'},
 		footer:{text:'weather provided by OpenWeatherAPI'}
 	})
-	mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
+	mongooseDriver.Channels.find({ 'isGMG' : true }).then(
 		function(gmgChannels) {
 			for (let i = 0; i < gmgChannels.length; i++) {
 				// Check that the channel is not paused
