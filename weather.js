@@ -7,7 +7,7 @@ const fs = require('fs');
 const myCanvas = createCanvas(264,326);
 const ctx = myCanvas.getContext('2d');
 
-let report = require('./report.json');
+let report;
 let last_report_time = new Date(0);
 
 // Table of weather status condition descriptions based on weather report ID
