@@ -219,12 +219,13 @@ async function drawKey() {
 	// Load the weather icon
 	await loadIcon(WeatherIcons[report.daily[0].weather[0].id],originX+130,originY+20,125,125);
 	// Weather description
+	/*
 	ctx.fillStyle = altTextColor;
 	ctx.font = '20px Sans';
 	ctx.fillText(
 		`${MonthLookup[last_report_date.getMonth()]} ${last_report_date.getDate()} ${last_report_date.getFullYear()}\n@  ${last_report_date.getHours().toString().padStart(2,"0")}:${last_report_date.getMinutes().toString().padStart(2,"0")}`,
 		originX+15,originY+72);
-	
+	*/
 	// Weather Stat Headings
 	ctx.fillStyle = darkTextColor;
 	ctx.font = '18px Sans';
