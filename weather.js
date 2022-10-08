@@ -295,7 +295,7 @@ function WordWrap(msg, max_line_length) {
 	return new_msg;
 }
 
-exports.GetReport = async (latitude, longitude) => {
+async function GetReport (latitude, longitude) {
 	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=imperial&exclude=minutely,hourly&appid=${openweathertoken}`;
 	const time_since_last_report = Date.now() - last_report_time;
 	const last_report_date = new Date(last_report_time);
@@ -315,10 +315,9 @@ exports.GetReport = async (latitude, longitude) => {
 		logger.log(`report was pulled in the last 3 hours (${last_report_date.toDateString()} | ${last_report_date.getHours()}:${last_report_date.getMinutes()})`);
 	}
 	return report;
-};
-exports.GetForecastCanvas = async () => {
+}
+async function UpdateForecastCanvas() {
 	//TODO: add weather location to config file
-	await this.GetReport('40.86', '-81.40');
 
 	// Backgorund Color
 	ctx.fillStyle= '#4ea2a8';
@@ -335,5 +334,12 @@ exports.GetForecastCanvas = async () => {
 
 
 	fs.writeFileSync('Forecast.png',myCanvas.toBuffer('image/png', { compressionLevel: 0, filters: myCanvas.PNG_FILTER_NONE }));
-};
+}
+
+exports.UpdateWeatherReport = async (latitude, longitude) => {
+	const latestReport = await GetReport('40.86', '-81.40');
+	await UpdateForecastCanvas();
+	return latestReport;
+}
+
 
