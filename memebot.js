@@ -149,22 +149,18 @@ async function EventMessage(eventTitle, eventMessage, eventDate) {
 		.setColor('#0099ff')
 		.setTitle(eventTitle)
 		.setDescription(eventMessage);
-	mongoDriver.GetOneDocument({ 'date': `${eventDate}` }, 'event_attachments')
-		.then(
-			function(Attach) {
-				mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
-					function(gmgChannels) {
-						for (let i = 0; i < gmgChannels.length; i++) {
-							// Check that the channel is not paused
-							if (!gmgChannels[i].isPaused) {
-								client.channels.fetch(gmgChannels[i]._id)
-									.then(channel => (Attach == null) ? channel.send({ embeds: [Embed] }) : channel.send({ embeds: [Embed], files: [Attach.url] }))
-									.catch(console.error);
-							}
-						}
-					},
-				);
-			});
+	mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
+		function(gmgChannels) {
+			for (let i = 0; i < gmgChannels.length; i++) {
+				// Check that the channel is not paused
+				if (!gmgChannels[i].isPaused) {
+					client.channels.fetch(gmgChannels[i]._id)
+						.then(channel => channel.send({ embeds: [Embed] }))
+						.catch(console.error);
+				}
+			}
+		},
+	);
 }
 function GetCommandHandlers() {
 	client.commands = new Collection();
