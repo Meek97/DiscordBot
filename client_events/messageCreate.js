@@ -1,6 +1,7 @@
 const mongoDriver = require('../MongoDriver');
+const mongooseDriver = require('../mongooseDriver');
 const logger = require('../logger');
-const MAX_RESPONSE_LIMIT = 5;
+const emojiRegex = require('emoji-regex');
 const { SUBMISSIONS_DB, CHANNELS_DB } = require('../config.json');
 
 module.exports = {
@@ -33,7 +34,9 @@ module.exports = {
 						responseLink = message.attachments.get(message.attachments.firstKey()).url;
 					}
 					// Query the DB to see if the submission key already exists
-					mongoDriver.GetOneDocument({ key:keyWords[1] }, SUBMISSIONS_DB).then(result => SaveSubmission(result, responseLink, message, keyWords[1]));
+					// mongoDriver.GetOneDocument({ key:keyWords[1] }, SUBMISSIONS_DB).then(result => SaveSubmission(result, responseLink, message, keyWords[1]));
+					mongooseDriver.Responses.find({ key:keyWords[1] })
+						.then(result => SaveSubmission(result,responseLink,message,keyWords[1]));
 				}
 			}
 			else {
