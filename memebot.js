@@ -111,7 +111,7 @@ function GetTime() {
 	if (GMGTotal > 0) {
 		logger.log('Good Morning Gamers in  ' + GMGTotal + ' miliseconds | ' + TimeOutLog(GMGTotal, Date.parse(today)));
 		// setTimeout to call GMG function after total miliseconds
-		setTimeout(SendGoodMorning, GMGTotal);
+		setTimeout(module.exports.SendGoodMorning, GMGTotal);
 	}
 	else {
 		logger.log('already passed gmg time for today. Will try again tomorrow');
