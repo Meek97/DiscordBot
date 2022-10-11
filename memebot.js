@@ -214,28 +214,31 @@ exports.GetChannel = async(channelID) => {
 	return await client.channels.fetch(channelID);
 };
 exports.SendGoodMorning = async() => {
-	await weather.GetForecastCanvas();
-	// Create embed message object
-	const embed = new MessageEmbed({
-		color:'#0099ff',
-		title:'Good Morning Gamers!',
-		thumbnail:{url:'https://cdn.frankerfacez.com/emoticon/600212/4'},
-		image:{url:'attachment://Forecast.png'},
-		footer:{text:'weather provided by OpenWeatherAPI'}
-	})
-	mongooseDriver.Channels.find({ 'isGMG' : true }).then(
-		function(gmgChannels) {
-			for (let i = 0; i < gmgChannels.length; i++) {
-				// Check that the channel is not paused
-				if (!gmgChannels[i].isPaused) {
-					client.channels.fetch(gmgChannels[i]._id)
-						.then(channel => channel.send({	// Message Options
-							embeds: [embed],
-							// content : "",
-							files : ['Forecast.png']
-						}))
-						.catch(console.error);
-				}
-			}
+	weather.UpdateWeatherReport().then(
+		(weatherReport) => {
+			const weatherReportDate = new Date(Date.parse(Date(weatherReport.current.dt)));
+			// Create embed message object
+			const embed = new MessageEmbed({
+				color:'#0099ff',
+				title:'Good Morning Gamers!',
+				thumbnail:{url:'https://cdn.frankerfacez.com/emoticon/600212/4'},
+				image:{url:'attachment://Forecast.png'},
+				footer:{text:`weather provided by OpenWeatherAPI\nWeather last updated @ ${weatherReportDate.toLocaleString('en-US',{dateStyle:'short',timeStyle:'short'})}`}
+			})
+			mongooseDriver.Channels.find({ 'isGMG' : true }).then(
+				function(gmgChannels) {
+					for (let i = 0; i < gmgChannels.length; i++) {
+						// Check that the channel is not paused
+						if (!gmgChannels[i].isPaused) {
+							client.channels.fetch(gmgChannels[i]._id)
+								.then(channel => channel.send({	// Message Options
+									embeds: [embed],
+									// content : "",
+									files : ['Forecast.png']
+								}))
+								.catch(console.error);
+						}
+					}
+				});
 		});
 };
