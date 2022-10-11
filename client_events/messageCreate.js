@@ -4,6 +4,15 @@ const logger = require('../logger');
 const emojiRegex = require('emoji-regex');
 const { SUBMISSIONS_DB, CHANNELS_DB } = require('../config.json');
 
+const MAX_RESPONSE_LIMIT = 5;
+const regex = emojiRegex();
+const SubmissionTypes = {
+	'URL' : 'URL',
+	'IMG' : 'IMG',
+	'EMOJI' : 'EMOJI',
+	'INVALID' : 'INVALID'
+};
+
 module.exports = {
 	name: 'messageCreate',
 	once: false,
@@ -23,9 +32,10 @@ module.exports = {
 		const keyWords = message.content.toUpperCase().split(' ');
 		if (keyWords[0] == '!SUBMIT') {
 			if (_channel.isSubmissionChannel) {
+				const SubmissionType = GetSubmissionType(message);
 				let responseLink = GetLink(message.content);
-				if (responseLink == '' && message.attachments.size != 1) {
-					message.reply('Invalid submission format.\nPlease use the following format: `!submit <key> <URL or attatchment>`\nOnly send a single URL or attatchment in your submission');
+				if (SubmissionType == SubmissionTypes.INVALID) {
+					message.reply('Invalid submission format.\nPlease use the following format: `!submit <key> <URL | Attatchment | Emoji>`\nOnly send a single `<URL / Attatchment / Emoji >` in your submission');
 				}
 				else {
 					// If the message does not contain a URL link, and does include an attatchment
@@ -87,6 +97,32 @@ function GetLink(_message) {
 	}
 	return linkString;
 }
+function GetSubmissionType(_message) {
+	let subType = SubmissionTypes.INVALID;
+	let typeFound = false;
+
+	const temp = _message.content.match(regex);
+	if(_message.attachments.size == 1 && typeFound == false) {
+		subType = SubmissionTypes.IMG;
+		typeFound = true;
+	}
+	else if(_message.content.match(regex) && typeFound == false) {
+		if(_message.content.match(regex).length == 1) {
+			subType = SubmissionTypes.EMOJI;
+		}
+		typeFound = true;
+	}
+	else if(GetLink(_message.content) != '' && typeFound == false) {
+		subType = SubmissionTypes.URL;
+		typeFound = true;
+	}
+	else {
+		subType = SubmissionTypes.INVALID;
+	}
+	return subType;
+}
+
+
 async function SaveSubmission(result, link, message, key) {
 	let duplicatekey = false;
 	if (result != null) duplicatekey = true;
