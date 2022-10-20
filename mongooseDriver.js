@@ -6,7 +6,7 @@ module.exports = {
 
 	Channels : require('./models/channel'),
 	Responses : require('./models/response'),
-	Submissions : require('./models/response'),
+	Submissions : require('./models/submission'),
 	mongooseClient : null,
 	Init: async function() {
 		if (!this.mongoClient) {
