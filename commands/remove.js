@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
 const { SUBMISSIONS_DB } = require('../config.json');
 const wait = require('util').promisify(setTimeout);
-const mongoDriver = require('../MongoDriver');
+const mongooseDriver = require('../mongooseDriver');
 const logger = require('../logger');
 
 module.exports = {
@@ -32,7 +32,7 @@ module.exports = {
 					.setStyle('DANGER')
 					.setDisabled(true),
 			);
-		const results = await mongoDriver.GetOneDocument({ key : temp }, SUBMISSIONS_DB);
+		const results = await mongooseDriver.Responses.findOne({key: temp});
 		if (results == null) {
 			await interaction.reply({ content:`Did not find any response entries under \`${temp}\``, ephemeral:true });
 		}
@@ -51,7 +51,7 @@ module.exports = {
 		}
 	},
 	async next(interaction, _key, index, modifier) {
-		const results = await mongoDriver.GetOneDocument({ key : _key }, SUBMISSIONS_DB);
+		const results = await mongooseDriver.Responses.findOne({key:_key});
 		if (results == null) {
 			await interaction.update({ content: `Did not find any response entries under \`${_key}\``, components: [] });
 		}
@@ -66,12 +66,12 @@ module.exports = {
 	},
 	async delete(interaction, _key) {
 		console.log('removing entry');
-		const results = await mongoDriver.GetOneDocument({ key : _key }, SUBMISSIONS_DB);
+		const results = await mongooseDriver.Responses.findOne({key:_key});
 		if (results == null) {
 			await interaction.update({ content: `Did not find any response entries under \`${_key}\``, components: [] });
 		}
 		else {
-			const remove_results = await mongoDriver.RemoveOneDocument({ key: _key }, SUBMISSIONS_DB);
+			const remove_results = await mongooseDriver.Responses.deleteOne({key:_key});
 			if (remove_results == null) {
 				await interaction.update({ content: `Ran into an issue when trying to update: \`${_key}\``, components: [] });
 			}
