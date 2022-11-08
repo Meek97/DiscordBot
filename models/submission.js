@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SubmissionSchema = new Schema({
+	_id: Schema.Types.ObjectID,
 	response: {
 		type: String,
 		required: true,

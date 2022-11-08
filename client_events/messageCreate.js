@@ -1,8 +1,8 @@
-const mongoDriver = require('../MongoDriver');
 const mongooseDriver = require('../mongooseDriver');
 const logger = require('../logger');
 const emojiRegex = require('emoji-regex');
-const { SUBMISSIONS_DB, CHANNELS_DB } = require('../config.json');
+const { CHANNELS_DB } = require('../config.json');
+const { default: mongoose } = require('mongoose');
 
 const MAX_RESPONSE_LIMIT = 5;
 const regex = emojiRegex();
@@ -44,8 +44,7 @@ module.exports = {
 						responseLink = message.attachments.get(message.attachments.firstKey()).url;
 					}
 					// Query the DB to see if the submission key already exists
-					// mongoDriver.GetOneDocument({ key:keyWords[1] }, SUBMISSIONS_DB).then(result => SaveSubmission(result, responseLink, message, keyWords[1]));
-					mongooseDriver.Responses.find({ key:keyWords[1] })
+					mongooseDriver.Responses.findOne({ key:keyWords[1] })
 						.then(result => SaveSubmission(result,responseLink,message,keyWords[1]));
 				}
 			}
@@ -64,7 +63,7 @@ module.exports = {
 				// increment response count
 				responseCount++;
 				// Check the db for a document with the key word
-				mongoDriver.GetOneDocument({ key:keyWords[i] }, SUBMISSIONS_DB).then(
+				mongooseDriver.Responses.findOne({ key:keyWords[i] }).then(
 					function(results) {
 						// If no results were returned, exit
 						if (results == null) return;
@@ -128,20 +127,15 @@ async function SaveSubmission(result, link, message, key) {
 	if (result != null) duplicatekey = true;
 	// In order to have the ability for multiple responses per key, we have to make sure we are adding the responses as an array type
 	const submissionObject = [];
-	submissionObject[0] = { response: link, author: message.author.username };
+	//TODO: properly set submission type when adding new documents to submission table
+	submissionObject[0] = { response: link, author: message.author.username, submissionType: 'link' };
 	if (!duplicatekey) {
 		logger.log(`Adding new document for ${key}`);
-		await mongoDriver.AddDocument({
-			key: key,
-			submissions: submissionObject,
-		}, SUBMISSIONS_DB).then(newDoc => newDoc);
+		await mongooseDriver.Responses.create({_id: mongoose.Types.ObjectId(), key: key, submissions: submissionObject})
 	}
 	else {
 		logger.log(`Updating existing document for ${key}`);
-		await mongoDriver.UpdateOneDocument(
-			{ key: key },
-			{ $push: { submissions:submissionObject[0] } },
-			SUBMISSIONS_DB).then(newDoc => newDoc);
+		await mongooseDriver.Responses.updateOne({ key: key }, { $push: { submissions:submissionObject[0] } })
 	}
 	message.channel.send({ embeds: [{
 		title: 'Submission Added',
