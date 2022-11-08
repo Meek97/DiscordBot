@@ -6,12 +6,6 @@ const { default: mongoose } = require('mongoose');
 
 const MAX_RESPONSE_LIMIT = 5;
 const regex = emojiRegex();
-const SubmissionTypes = {
-	'URL' : 'URL',
-	'IMG' : 'IMG',
-	'EMOJI' : 'EMOJI',
-	'INVALID' : 'INVALID'
-};
 
 module.exports = {
 	name: 'messageCreate',
@@ -34,7 +28,8 @@ module.exports = {
 			if (_channel.isSubmissionChannel) {
 				const SubmissionType = GetSubmissionType(message);
 				let responseLink = GetLink(message.content);
-				if (SubmissionType == SubmissionTypes.INVALID) {
+
+				if (SubmissionType == 'INVALID') {
 					message.reply('Invalid submission format.\nPlease use the following format: `!submit <key> <URL | Attatchment | Emoji>`\nOnly send a single `<URL / Attatchment / Emoji >` in your submission');
 				}
 				else {
@@ -97,26 +92,26 @@ function GetLink(_message) {
 	return linkString;
 }
 function GetSubmissionType(_message) {
-	let subType = SubmissionTypes.INVALID;
+	let subType = 'INVALID';
 	let typeFound = false;
 
 	const temp = _message.content.match(regex);
 	if(_message.attachments.size == 1 && typeFound == false) {
-		subType = SubmissionTypes.IMG;
+		subType = 'IMG'
 		typeFound = true;
 	}
 	else if(_message.content.match(regex) && typeFound == false) {
 		if(_message.content.match(regex).length == 1) {
-			subType = SubmissionTypes.EMOJI;
+			subType = 'EMOJI';
 		}
 		typeFound = true;
 	}
 	else if(GetLink(_message.content) != '' && typeFound == false) {
-		subType = SubmissionTypes.URL;
+		subType = 'URL';
 		typeFound = true;
 	}
 	else {
-		subType = SubmissionTypes.INVALID;
+		subType = 'INVALID';
 	}
 	return subType;
 }
@@ -128,7 +123,7 @@ async function SaveSubmission(result, link, message, key) {
 	// In order to have the ability for multiple responses per key, we have to make sure we are adding the responses as an array type
 	const submissionObject = [];
 	//TODO: properly set submission type when adding new documents to submission table
-	submissionObject[0] = { response: link, author: message.author.username, submissionType: 'link' };
+	submissionObject[0] = { response: link, author: message.author.username};
 	if (!duplicatekey) {
 		logger.log(`Adding new document for ${key}`);
 		await mongooseDriver.Responses.create({_id: mongoose.Types.ObjectId(), key: key, submissions: submissionObject})

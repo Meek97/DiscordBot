@@ -20,11 +20,6 @@ const SubmissionSchema = new Schema({
 		type:String,
 		required:true
 	},
-	submissionType: {
-		type: String,
-		required: true,
-		enum: ['link', 'image', 'reaction',]
-	},
 	submissionDate:{
 		type: Date,
 		default: Date.now
