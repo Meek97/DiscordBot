@@ -20,7 +20,7 @@ module.exports = {
 		// Exit if the message was sent from a BOT
 		if (message.author.bot) return;
 		// check if the bot knows about this channel
-		const _channel = await mongoDriver.GetOneDocument({ _id : message.channelId }, CHANNELS_DB);
+		const _channel = await mongooseDriver.Channels.findOne({ _id : message.channelId });// mongoDriver.GetOneDocument({ _id : message.channelId }, CHANNELS_DB);
 		// Exit if _channel returns empty
 		if (!_channel) return;
 		// exit if the channel is currently paused
