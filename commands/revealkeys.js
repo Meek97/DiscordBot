@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
-const { SUBMISSIONS_DB } = require('../config.json');
-const mongoDriver = require('../MongoDriver');
+const mongooseDriver = require('../mongooseDriver');
 
 const REVEAL_KEYS_LENGTH = 20;
 
@@ -30,7 +29,7 @@ module.exports = {
 		if (keyPage) {
 			startingIndex = (REVEAL_KEYS_LENGTH * keyPage) - REVEAL_KEYS_LENGTH;
 		}
-		const results = await mongoDriver.GetAllDocumentsSorted(SUBMISSIONS_DB, { key:1 });
+		const results = await mongooseDriver.Responses.find({}).sort({ key:1 });
 		let messageBody = '';
 		let messageTitle = '';
 		if (keyPage == -1) {
@@ -68,7 +67,7 @@ module.exports = {
 	},
 	async next(interaction, index, modifier) {
 		let keyPage = index + modifier;
-		const results = await mongoDriver.GetAllDocumentsSorted(SUBMISSIONS_DB, { key:1 });
+		const results = await mongooseDriver.Responses.find({}).sort({ key:1 });
 		const row = new MessageActionRow()
 			.addComponents(
 				new MessageButton()
