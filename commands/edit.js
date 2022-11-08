@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
 const { SUBMISSIONS_DB } = require('../config.json');
-const mongoDriver = require('../MongoDriver');
+const mongooseDriver = require('../mongooseDriver');
 const logger = require('../logger');
 
 module.exports = {
@@ -30,7 +30,7 @@ module.exports = {
 					.setLabel('Delete')
 					.setStyle('DANGER'),
 			);
-		const results = await mongoDriver.GetOneDocument({ key : temp }, SUBMISSIONS_DB);
+		const results = await mongooseDriver.Responses.findOne({key:temp});
 		if (results == null) {
 			await interaction.reply({ content:`Did not find any response entries under \`${temp}\``, ephemeral:true });
 		}
@@ -45,7 +45,7 @@ module.exports = {
 		}
 	},
 	async next(interaction, _key, index, modifier) {
-		const results = await mongoDriver.GetOneDocument({ key : _key }, SUBMISSIONS_DB);
+		const results = await mongooseDriver.Responses.findOne({key:_key});
 		if (results == null) {
 			await interaction.update({ content: `Did not find any response entries under \`${_key}\``, components: [] });
 		}
@@ -59,7 +59,7 @@ module.exports = {
 		}
 	},
 	async delete(interaction, _key, index) {
-		const results = await mongoDriver.GetOneDocument({ key : _key }, SUBMISSIONS_DB);
+		const results = await mongooseDriver.Responses.findOne({key:_key});
 		if (results == null) {
 			await interaction.update({ content: `Did not find any response entries under \`${_key}\``, components: [] });
 		}
@@ -67,13 +67,10 @@ module.exports = {
 			let edit_results;
 			if (results.submissions.length > 1) {
 				results.submissions.splice((index - 1), 1);
-				edit_results = await mongoDriver.UpdateOneDocument(
-					{ key:_key },
-					{ $set: { submissions : results.submissions } },
-					SUBMISSIONS_DB);
+				edit_results = await results.save();
 			}
 			else {
-				edit_results = await mongoDriver.RemoveOneDocument({ key: _key }, SUBMISSIONS_DB);
+				edit_results = await mongooseDriver.Responses.deleteOne({ key: _key });
 			}
 			if (edit_results == null) {
 				await interaction.update({ content: `Ran into an issue when trying to update: \`${_key}\``, components: [] });
