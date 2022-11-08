@@ -1,9 +1,8 @@
 // https://discord.js.org/#/docs/main/stable/general/welcome
 
 // IMPORTS
-const { token, guildId, CHANNELS_DB, ADMIN_ROLE_ID, iCalAddress, openweathertoken, DB_URI,DB_NAME } = require('./config.json');
+const { token, iCalAddress} = require('./config.json');
 
-const mongoDriver = require('./MongoDriver.js');
 const mongooseDriver = require('./mongooseDriver');
 
 const logger = require('./logger');
@@ -27,8 +26,6 @@ InitBot();
 
 async function InitBot() {
 	logger.log('Bot script is starting... ');
-	mongoDriver.init();
-	await mongoDriver.ConnectDB();
 	await mongooseDriver.Init();
 	// client login
 	// Wait for client to sucessfully log in
@@ -93,16 +90,17 @@ function GetTime() {
 					gmgMessages += ev.description;
 				}
 				else {
+					// TODO: send calendar event messages
 					// Get the amount of time until event start
 					const eventTime = Date.parse(ev.start) - Date.parse(today);
 					// The start time has already passed
 					if (eventTime < 0) {
 						logger.log(`${ev.summary} happing now`);
-						EventMessage(ev.summary, ev.description, ((today.getMonth() + 1) + '/' + today.getDate()));
+						// EventMessage(ev.summary, ev.description, ((today.getMonth() + 1) + '/' + today.getDate()));
 					}
 					else {
 						logger.log(`${ev.summary} happing in ${TimeOutLog(eventTime)}`);
-						setTimeout(EventMessage(ev.summary, ev.description, ((today.getMonth() + 1) + '/' + today.getDate())), eventTime);
+						// setTimeout(EventMessage(ev.summary, ev.description, ((today.getMonth() + 1) + '/' + today.getDate())), eventTime);
 					}
 				}
 			}
@@ -149,7 +147,7 @@ async function EventMessage(eventTitle, eventMessage, eventDate) {
 		.setColor('#0099ff')
 		.setTitle(eventTitle)
 		.setDescription(eventMessage);
-	mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
+	/*mongoDriver.GetManyDocuments({ 'isGMG' : true }, CHANNELS_DB).then(
 		function(gmgChannels) {
 			for (let i = 0; i < gmgChannels.length; i++) {
 				// Check that the channel is not paused
@@ -160,7 +158,7 @@ async function EventMessage(eventTitle, eventMessage, eventDate) {
 				}
 			}
 		},
-	);
+	);*/
 }
 function GetCommandHandlers() {
 	client.commands = new Collection();
