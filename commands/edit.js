@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageActionRow, MessageButton } = require('discord.js');
-const { SUBMISSIONS_DB } = require('../config.json');
 const mongooseDriver = require('../mongooseDriver');
 const logger = require('../logger');
 
