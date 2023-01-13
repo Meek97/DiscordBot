@@ -261,7 +261,7 @@ async function drawKey() {
 }
 async function loadIcon(_id,_x,_y,_sizeX,_sizeY){
 
-	loadImage(`resources\\img\\${_id}.png`)
+	loadImage(`resources\img\${_id}.png`)
 		.then( (img) =>{
 			ctx.drawImage(img,_x,_y,_sizeX,_sizeY);
 		});
