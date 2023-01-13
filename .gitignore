@@ -4,6 +4,7 @@ attachments/*
 config.json
 gitArchive.zip
 .vscode/*
-
+test_files/*
+resources/responses/*
 *.png
 report.json
