@@ -1,4 +1,4 @@
-const mongoDriver = require('../MongoDriver');
+const mongooseDriver = require('../mongooseDriver');
 const logger = require('../logger');
 const { guildId, CHANNELS_DB } = require('../config.json');
 module.exports = {
@@ -34,13 +34,14 @@ module.exports = {
 							'isGMG' : false,
 						};
 						// Check if a document already exists in the DB under the same id
-						mongoDriver.GetOneDocument({ _id : dbObject._id }, CHANNELS_DB).then(
-							function(results) {
+						mongooseDriver.Channels.findOne({_id:dbObject._id})
+							.then(function(results) {
 								// If no results were returned
 								if (results == null) {
 									logger.log(`${channel.name} | ${channel.id} does not yet exists in ChannelsDB. Adding entry now`);
 									// Add default channel object to the DB
-									mongoDriver.AddDocument(dbObject, CHANNELS_DB);
+									mongooseDriver.Channels.create(dbObject);
+									// mongoDriver.AddDocument(dbObject, CHANNELS_DB);
 								}
 								// If a result was found
 								else {
@@ -49,13 +50,11 @@ module.exports = {
 										// if a field is found to be missing, update the document
 										if (results[property] == undefined) {
 											logger.log(`${channel.name} | ${channel.id} missing ${property} property. Updating now`);
-											mongoDriver.UpdateOneDocument(
-												{ _id : dbObject._id },
-												{ $set: { [property] : dbObject[property] } },
-												CHANNELS_DB);
+											
+											mongooseDriver.Channels.updateOne({ _id : dbObject._id },{ $set: { [property] : dbObject[property] } })
 										}
-										// TODO : remove properties from document that aren't present in the default object?
 									}
+									results.save();
 								}
 							});
 					}
