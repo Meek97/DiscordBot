@@ -6,7 +6,6 @@
     "discord-api-types": "^0.24.0",
     "discord.js": "^13.3.1",
     "emoji-regex": "^10.2.1",
-    "eslint": "^8.3.0",
     "got": "^11.8.3",
     "mongod": "^2.0.0",
     "mongodb": "^4.2.0",
@@ -22,5 +21,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.32.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.4",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-promise": "^6.1.1"
+  }
 }
