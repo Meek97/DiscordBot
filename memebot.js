@@ -7,7 +7,7 @@ const mongooseDriver = require('./mongooseDriver');
 
 const logger = require('./logger');
 const weather = require('./weather');
-const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const got = require('got');
 const ical = require('node-ical');
@@ -18,7 +18,7 @@ const readline = require('readline').createInterface({
 // GLOBAL OBJECTS
 const client = new Client({ 
 	restRequestTimeout : 30000,
-	intents : [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+	intents : [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 let gmgTitle = '';
 
 // Script starting execution
