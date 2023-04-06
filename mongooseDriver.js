@@ -10,8 +10,8 @@ module.exports = {
 	mongooseClient : null,
 	Init: async function() {
 		if (!this.mongoClient) {
-			logger.log('no mongoose client created. creating new client now');
-			this.mongooseClient = await mongoose.connect(`${DB_URI}/${DB_NAME}`);
+            this.mongooseClient = await mongoose.connect(`${DB_URI}/${DB_NAME}`);
+			logger.log(`New mongoose connection started at: ${this.mongooseClient.connection._connectionString}`);
 		}
 		else {
 			logger.log(`Mongoose client already connected on ${this.mongooseClient.connection._connectionString}`);
