@@ -21,7 +21,7 @@ module.exports = {
 			.then(function(channels) {
 				logger.log(`found ${channels.size} channels`);
 				channels.forEach(channel => {
-					if (channel.type == 'GUILD_TEXT') {
+					if (channel.type == 0) {
 						// Define a default channel object for the DB
 						const dbObject = {
 							'_id' : channel.id,
